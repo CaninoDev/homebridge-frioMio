@@ -1,13 +1,7 @@
 {
   "name": "homebridge-development",
   "version": "0.0.1",
-  "description": "Tutorial for homebridge-plugin development from https://www.wolfe.id.au/2014/02/01/getting-a-new-node-project-started-with-npm/",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "homebridge-plugin"
+  "description": "Tutorial for homebridge-plugin development from https://github.com/fredericbarthelet/blog-theodo-article-homebridge"
   ],
   "engines": {
     "node": ">=0.12.0",
