@@ -13,6 +13,10 @@
     "node": ">=0.12.0",
     "homebridge": ">=0.2.0"
   },
+  "dependencies": {
+    "g": "^2.0.1",
+    "request": "^2.65.0"
+  },
   "author": "Canino Developments",
   "license": "ISC"
 }
