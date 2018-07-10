@@ -1,81 +1,94 @@
 var Lirc = require('./lib/lirc')
 var Service, Characteristic
 
-/*  Inject the plugin within homebridge, 'acAccessory' is an object containing the control logic */
+/*  Inject the plugin within homebridge, 'ACaccessory' is an object containing the control logic */
 module.exports = function (homebridge) {
   Service = homebridge.hap.Service
   Characteristic = homebridge.hap.Characteristic
-  homebridge.registerAccessory('homebridge-lirc-LG-aircon', 'LGaircon', acAccessory)
+  homebridge.registerAccessory('homebridge-lirc-LG-aircon', 'LGaircon', ACaccessory)
 }
 
 /* Platform constructor,
  * config may be null.
  */
-function acAccessory (log, config) {
-  this.name = config.name
-  this.log = log
-  this.manufacturer = config.manufacturer
-  this.model = config.model
-  this.serial = config.serial
+class ACaccessory {
+  constructor (log, config) {
+    /* General Attributes */
+    this.name = config.name
+    this.log = log
+    this.manufacturer = config.manufacturer
+    this.model = config.model
+    this.serial = config.serial
 
-  this.powerState = 0
-  this.mode = 'econ'
-  this.temperature = 15.5667
+    /* Initial States */
+    this.powerState = 0
+    this.mode = 'econ'
+    this.temperature = 15.5667
+    this.services = []
 
-  this.lirc = new Lirc(config.lirc)
-  this.commands = config.commands
+    /* Initiate IR remote */
+    this.lirc = new Lirc(config.lirc)
+    this.commands = config.commands
 
-  this.log(`Initializing ${this.name}...`)
-}
+    this.log(`Initializing ${this.name}...`)
 
-acAccessory.prototype.getActive = function (callback) {
-  var accessory = this
-  if (accessory.power) {
-    callback(null, Characteristic.Active.ACTIVE)
-  } else {
-    callback(null, Characteristic.Active.INACTIVE)
+    this.addServices()
+    this.bindCharacteristics()
+    this.syncStates()
   }
-}
 
-acAccessory.prototype.setActive = function (state, callback) {
-  var accessory = this
-  var power = accessory.powerState
-  accessory.log('state: ' + state)
+  addServices () {
+    this.heaterCoolerService = new Service.HeaterCooler(this.name)
+    this.services.push(this.heaterCoolerService)
 
-  if (state === accessory.powerState) {
-    accessory.log(`${accessory.name}'s is out of sync. Please reset...'`)
-  } else {
-    accessory.lirc.send(accessory.commands.power, function (err) {
-      if (err) {
-        callback(err)
-      } else {
-        accessory.powerState = power ? 0 : 1
-      }
-    })
+    this.informationService = new Service.AccessoryInformation()
+    this.services.push(this.informationService)
   }
-  callback()
-}
 
-acAccessory.prototype.getCurrentTemperature = function (callback) {
-  callback(null, this.temperature)
-}
+  bindCharacteristics () {
+    /* Required characteristics for Service.HeaterCooler */
+    this.Active = this.heaterCoolerService.getCharacteristic(Characteristic.Active)
+    this.Active.on('set', this.setActive.bind(this))
 
-acAccessory.prototype.getServices = function () {
-  this.informationService = new Service.AccessoryInformation()
-  this.informationService
-    .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
-    .setCharacteristic(Characteristic.Model, this.model)
-    .setCharacteristic(Characteristic.SerialNumber, this.serial)
+    this.CurrentTemperature = this.heaterCoolerService.getCharacteristic(Characteristic.CurrentTemperature)
+  }
 
-  this.HeaterCoolerService = new Service.HeaterCooler(this.name)
-  this.HeaterCoolerService
-    .getCharacteristic(Characteristic.Active)
-    .on('get', this.getActive.bind(this))
-    .on('set', this.setActive.bind(this))
+  syncStates () {
+    switch (this.powerState) {
+      case 0:
+        this.Active.updateValue(Characteristic.Active.INACTIVE)
+        break
+      case 1:
+        this.Active.updateValue(Characteristic.Active.ACTIVE)
+        break
+    }
 
-  this.HeaterCoolerService
-    .getCharacteristic(Characteristic.CurrentTemperature)
-    .on('get', this.getCurrentTemperature.bind(this))
+    this.CurrentTemperature.updateValue(this.temperature)
+  }
 
-  return [this.informationService, this.HeaterCoolerService]
+  setActive (state, callback) {
+    var accessory = this
+    var power = accessory.powerState
+    accessory.log('state: ' + state)
+
+    if (state === accessory.powerState) {
+      let err = `${accessory.name}'s is out of sync. Please reset...'`
+      callback(err)
+    } else {
+      accessory.lirc.send(accessory.commands.power, function (err) {
+        if (err) {
+          callback(err)
+        } else {
+          accessory.powerState = power ? 0 : 1
+        }
+      })
+    }
+    this.syncStates()
+    callback()
+  }
+
+  /* framework interface */
+  getServices () {
+    return this.services
+  }
 }
