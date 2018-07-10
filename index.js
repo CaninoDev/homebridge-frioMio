@@ -21,7 +21,7 @@ class ACaccessory {
     this.serial = config.serial
 
     /* Initial States */
-    this.powerState = 0
+    this.powerState = 1
     this.mode = 'econ'
     this.temperature = 15.5667
     this.services = []
@@ -51,38 +51,43 @@ class ACaccessory {
     this.Active.on('set', this.setActive.bind(this))
 
     this.CurrentTemperature = this.heaterCoolerService.getCharacteristic(Characteristic.CurrentTemperature)
+
+    this.CurrentHeaterCoolerState = this.heaterCoolerService.getCharacteristic(Characteristic.CurrentHeaterCoolerState)
+
+    this.TargetHeaterCoolerState = this.heaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState)
+    this.TargetHeaterCoolerState
+      .setProps({validValues:
+      [Characteristic.TargetHeatingCoolingState.OFF, Characteristic.TargetHeatingCoolingState.COOL, Characteristic.TargetHeatingCoolingState.AUTO]})
+      .on('set', this.setTargetHeaterCoolerState.bind(this))
   }
 
   syncStates () {
-    switch (this.powerState) {
-      case 0:
-        this.Active.updateValue(Characteristic.Active.INACTIVE)
-        break
-      case 1:
-        this.Active.updateValue(Characteristic.Active.ACTIVE)
-        break
+    var accessory = this
+    var currentPowerState = this.powerState
+    if (currentPowerState === this.Active) {
+      this.log('powerstate synced')
+    } else {
+      this.lirc.send(this.commands.power, function (err) {
+        if (err) {
+          accessory.log(err)
+        } else {
+          accessory.powerState ? accessory.Active.updateValue(Characteristic.Active.ACTIVE) : accessory.Active.updateValue(Characteristic.Active.INACTIVE)
+        }
+      })
     }
-
     this.CurrentTemperature.updateValue(this.temperature)
+  }
+
+  setTargetHeaterCoolerState (state, callback) {
+    callback()
+    this.log(`setTargetHeaterCooler::state: ${state}`)
   }
 
   setActive (state, callback) {
     var accessory = this
     var power = accessory.powerState
-    accessory.log('state: ' + state)
-
-    if (state === accessory.powerState) {
-      let err = `${accessory.name}'s is out of sync. Please reset...'`
-      callback(err)
-    } else {
-      accessory.lirc.send(accessory.commands.power, function (err) {
-        if (err) {
-          callback(err)
-        } else {
-          accessory.powerState = power ? 0 : 1
-        }
-      })
-    }
+    accessory.log('setActive::state: ' + state)
+    accessory.powerState = power ? 0 : 1
     this.syncStates()
     callback()
   }
