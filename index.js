@@ -33,3 +33,13 @@ class LGaircon {
     this.bindCharacteristics()
   }
 }
+
+addService () {
+  this.informationService = new Service.AccessoryInformation()
+  this.informationService
+    .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
+    .setCharacteristic(Characteristic.Model, this.model)
+    .setCharacteristic(Characteristic.SerialNumber, this.serial)
+
+  this.services.push(this.informationService)
+}
