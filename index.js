@@ -43,3 +43,10 @@ addService () {
 
   this.services.push(this.informationService)
 }
+
+ /* framework interface */
+ getServices () {
+  return this.services
+}
+
+
