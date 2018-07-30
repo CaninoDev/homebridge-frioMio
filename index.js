@@ -11,7 +11,7 @@ module.exports = function (homebridge) {
  * config may be null.
  */
 class LGaircon {
-  constructor(log, config) {
+  constructor (log, config) {
     /* General Attributes */
     this.name = config.name
     this.serialNumber = config.serial
@@ -36,19 +36,19 @@ class LGaircon {
     this.addServices()
     this.bindCharacteristics()
   }
-}
 
-addServices () {
-  this.informationService = new Service.AccessoryInformation()
-  this.informationService
-    .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
-    .setCharacteristic(Characteristic.Model, this.model)
-    .setCharacteristic(Characteristic.SerialNumber, this.serial)
+  addServices () {
+    this.informationService = new Service.AccessoryInformation()
+    this.informationService
+      .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
+      .setCharacteristic(Characteristic.Model, this.model)
+      .setCharacteristic(Characteristic.SerialNumber, this.serial)
 
-  this.services.push(this.informationService)
-}
+    this.services.push(this.informationService)
+  }
 
-/* framework interface */
-getServices() {
-  return this.services
+  /* framework interface */
+  getServices () {
+    return this.services
+  }
 }
