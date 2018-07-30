@@ -11,7 +11,7 @@ module.exports = function (homebridge) {
  * config may be null.
  */
 class LGaircon {
-  constructor (log, config) {
+  constructor(log, config) {
     /* General Attributes */
     this.name = config.name
     this.serialNumber = config.serial
@@ -26,6 +26,10 @@ class LGaircon {
     this.acTemperatureSetting = 60
     this.temperatureDisplayUnits = config.temperatureUnit.toUpperCase() === 'CELSIUS' ? Characteristic.TemperatureDisplayUnits.CELSIUS : Characteristic.TemperatureDisplayUnits.FAHRENHEIT
 
+    /* Initialize IR remote */
+    this.lirc = new Lirc(config.lirc)
+    this.lirc.commands = config.commands
+
     /* Bring it all together */
     this.log(`Initializing ${this.name}...`)
 
@@ -34,7 +38,7 @@ class LGaircon {
   }
 }
 
-addService () {
+addService() {
   this.informationService = new Service.AccessoryInformation()
   this.informationService
     .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
@@ -44,9 +48,7 @@ addService () {
   this.services.push(this.informationService)
 }
 
- /* framework interface */
- getServices () {
+/* framework interface */
+getServices() {
   return this.services
 }
-
-
