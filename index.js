@@ -5,7 +5,7 @@ var Service, Characteristic
 module.exports = function (homebridge) {
   Service = homebridge.hap.Service
   Characteristic = homebridge.hap.Characteristic
-  homebridge.registerAccessory('homebridge-lirc-LG-aircon', 'LGaircon', ACaccessory)
+  homebridge.registerAccessory('homebridge-frioMio', 'LGaircon', LGaircon)
 }
 /* Platform constructor,
  * config may be null.
@@ -18,7 +18,7 @@ class LGaircon {
     this.model = config.model
     this.manufacturer = config.manufacturer
     this.log = log
-    this.service = []
+    this.services = []
 
     /* Initial States */
     this.powerState = 0
@@ -38,7 +38,7 @@ class LGaircon {
   }
 }
 
-addService() {
+addServices () {
   this.informationService = new Service.AccessoryInformation()
   this.informationService
     .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
