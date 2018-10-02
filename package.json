@@ -1,5 +1,5 @@
 {
-  "name": "homebridge-development",
+  "name": "homebridge-frioMio",
   "version": "0.0.1",
   "description": "Tutorial for homebridge-plugin development from https://www.wolfe.id.au/2014/02/01/getting-a-new-node-project-started-with-npm/",
   "main": "index.js",
@@ -14,5 +14,8 @@
     "homebridge": ">=0.2.0"
   },
   "author": "Canino Developments",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.87.0"
+  }
 }
