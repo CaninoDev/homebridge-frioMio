@@ -1,0 +1,35 @@
+{
+    "bridge": {
+        "name": "Homebridge",
+        "username": "CC:22:3D:E3:CE:33",
+        "port": 51826,
+        "pin": "031-45-154"
+    },
+    "description": "Configuration file for Ianga's bedoom",
+    "accessories": [
+      {
+        "accessory": "LGaircon",
+        "name": "Air Conditioner",
+        "manufacturer": "LG",
+        "serial": "6711A20034G",
+        "initialPowerState": 0,
+        "temperatureUnit": "fahrenheit",
+        "initialTemp": 60,
+        "initialMode": "econ",
+        "minTemp": 60,
+        "maxTemp": 86,
+        "commands": {
+          "power": ["KEY_POWER"],
+          "down": ["KEY_DOWN"],
+          "up": ["KEY_UP"],
+          "mode": ["KEY_MODE"]
+        },
+        "lirc": {
+          "remote": "LG_AC",
+          "delay": 250,
+          "host": "192.168.69.25",
+          "port": 8765
+        }
+      }
+    ]
+}
